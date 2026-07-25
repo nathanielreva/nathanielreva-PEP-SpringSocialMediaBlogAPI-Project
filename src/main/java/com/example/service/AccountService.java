@@ -3,6 +3,7 @@ package com.example.service;
 import org.springframework.stereotype.Service;
 
 import com.example.entity.Account;
+import com.example.exception.AccountNotFoundException;
 import com.example.exception.PasswordIsInvalidException;
 import com.example.exception.UsernameAlreadyRegisteredException;
 import com.example.exception.UsernameIsBlankException;
@@ -34,4 +35,13 @@ public class AccountService {
         
         return accountRepository.save(account);
     }
+
+    public Account loginAccount(Account account){
+        
+        
+        return accountRepository.findByUsernameAndPassword(account.getUsername(), account.getPassword()).orElseThrow(() -> new AccountNotFoundException());
+
+    }
+
+    
 }

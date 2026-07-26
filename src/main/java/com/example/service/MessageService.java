@@ -1,6 +1,7 @@
 package com.example.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -45,4 +46,41 @@ public class MessageService {
         return messageRepository.findAll();
     }
 
+    public Optional<Message> getById(int id){
+        return messageRepository.findById(id);
+    }
+    public int delete(int id){
+        if(messageRepository.existsById(id)){
+            messageRepository.deleteById(id);
+            return 1;
+        }else{
+            return 0;
+        }
+    }
+
+    public Message update(int id, Message message){
+        if(message.getMessageText() == null || message.getMessageText().isBlank()){
+            throw new MessageIsBlankException();
+        }
+        if(message.getMessageText().length() >= 255){
+            throw new MessageExceedsLengthLimitException();
+        }
+
+        //update
+        Optional<Message> optionalmsg = this.getById(id);
+
+        if(optionalmsg.isPresent()){
+            Message messageDB = optionalmsg.get();
+            messageDB.setMessageText(message.getMessageText());
+            messageRepository.save(messageDB);
+
+            return messageDB;
+        }
+        return null;
+    }
+
+    public List<Message> getByAccount(int id){
+
+        return messageRepository.findAllByPostedBy(id);
+    }
 }

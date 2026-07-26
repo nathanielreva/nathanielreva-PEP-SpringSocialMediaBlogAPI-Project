@@ -9,6 +9,7 @@ import com.example.entity.Message;
 import com.example.exception.AccountNotFoundException;
 import com.example.exception.MessageExceedsLengthLimitException;
 import com.example.exception.MessageIsBlankException;
+import com.example.exception.MessageNotFoundException;
 import com.example.repository.AccountRepository;
 import com.example.repository.MessageRepository;
 
@@ -47,18 +48,22 @@ public class MessageService {
     }
 
     public Optional<Message> getById(int id){
+
         return messageRepository.findById(id);
     }
+
     public int delete(int id){
         if(messageRepository.existsById(id)){
             messageRepository.deleteById(id);
             return 1;
         }else{
-            return 0;
+            throw new MessageNotFoundException();
         }
     }
 
     public Message update(int id, Message message){
+
+
         if(message.getMessageText() == null || message.getMessageText().isBlank()){
             throw new MessageIsBlankException();
         }
@@ -75,8 +80,10 @@ public class MessageService {
             messageRepository.save(messageDB);
 
             return messageDB;
+        }else{
+            throw new MessageNotFoundException();
         }
-        return null;
+    
     }
 
     public List<Message> getByAccount(int id){

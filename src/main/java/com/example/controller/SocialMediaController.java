@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.entity.Account;
 import com.example.entity.Message;
 import com.example.exception.AccountNotFoundException;
+import com.example.exception.MessageNotFoundException;
 import com.example.exception.UsernameAlreadyRegisteredException;
 import com.example.service.AccountService;
 import com.example.service.MessageService;
@@ -88,20 +89,32 @@ public class SocialMediaController {
     }
 
     @GetMapping("/messages/{id}")
-    public ResponseEntity<Optional<Message>> getById(@PathVariable int id){
-        return ResponseEntity.ok(messageService.getById(id));
+    public ResponseEntity<?> getById(@PathVariable int id){
+        Optional<Message> opMessage = messageService.getById(id);
+
+        if(opMessage.isPresent()){
+            return ResponseEntity.ok(messageService.getById(id));
+        }else{
+            return ResponseEntity.ok().build();
+        }
+        
     }
 
     @DeleteMapping("/messages/{id}")
-    public ResponseEntity<Integer> delete(@PathVariable int id){
-        return ResponseEntity.ok(messageService.delete(id));
+    public ResponseEntity<?> delete(@PathVariable int id){
+        try{
+            return ResponseEntity.ok(messageService.delete(id));
+        }catch(MessageNotFoundException e){
+            return ResponseEntity.ok().build();
+        }
+        
     }
 
     @PatchMapping("/messages/{id}")
-    public ResponseEntity<Message> updateMessage(@PathVariable int id, @RequestBody Message message){
+    public ResponseEntity<?> updateMessage(@PathVariable int id, @RequestBody Message message){
         try{
-            Message updatedMessage = messageService.update(id, message);
-            return ResponseEntity.ok(updatedMessage);
+            messageService.update(id, message);
+            return ResponseEntity.ok(1);
         }catch(Throwable e){
             System.out.println(e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
